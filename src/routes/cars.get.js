@@ -1,5 +1,5 @@
 'use strict';
-
+// singleton, es6 ma singletona w pakiecie
 const db = require('../db');
 
 module.exports = function(app) {
