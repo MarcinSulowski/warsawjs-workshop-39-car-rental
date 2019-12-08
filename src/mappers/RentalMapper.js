@@ -1,55 +1,67 @@
-// 'use strict';
+'use strict';
 
-// const Car = require('../entities/Car');
+const Rental = require('../entities/Rental');
 
-// class RentalMapper {
-//   constructor({ db }) {
-//     this._db = db;
-//   }
+class RentalMapper {
+  constructor({ db }) {
+    this._db = db;
+  }
 
-//   fromRow(row) {
-//     return new Car({
-//       carID: row.car_id,
-//       start,
-//       end,
-//       price_amount: price.amount,
-//       price_currency: price.currency
-//     });
-//   }
+  fromRow(row) {
+    return new Rental({
+      carID: row.car_id,
+      rentalID: row.rental_id,
+      price: {
+        amount: row.price_amount,
+        currency: row.price_currency
+      },
+      active: row.active,
+      duration: {
+        start: row.start,
+        end: row.end
+      }
+    });
+  }
 
-//   toRow(car) {
-//     return {
-//       car_id: car.getID(),
-//       make: car.getMake(),
-//       model: car.getModel(),
-//       plate: car.getPlate(),
-//       list_price_amount: car.getListPrice().amount,
-//       list_price_currency: car.getListPrice().currency,
-//       rented: car.isRented(),
-//       rental_id: car.getRentalID(),
-//       policy: car.getPolicy()
-//     };
-//   }
+  toRow(rental) {
+    return {
+      rental_id: rental.getID(),
+      car_id: rental.getCarID(),
+      start: rental.getDuration().start,
+      end: rental.getDuration().end,
+      active: rental.isActive(),
+      price_amount: rental.getPrice().amount,
+      price_currency: rental.getPrice().currency
+    };
+  }
 
-//   async find({ ID }) {
-//     const db = this._db;
-//     const row = await db('cars')
-//       .first()
-//       .where({ car_id: ID });
-//     if (!row) {
-//       return Promise.reject(new Error('No entry found for car: ' + ID));
-//     }
-//     return this.fromRow(row);
-//   }
+  async find({ ID }) {
+    const db = this._db;
+    const row = await db('rentals')
+      .first()
+      .where({ rental_id: ID });
+    if (!row) {
+      return Promise.reject(new Error('No entry found for rental: ' + ID));
+    }
+    return this.fromRow(row);
+  }
 
-//   async update(car) {
-//     if (!car.getID()) throw new Error('Cars without ID cannot be saved');
+  async insert(rental) {
+    const row = this.toRow(rental);
+    delete row.rental_id;
+    const [rental_id] = await this._db('rentals').insert(row, ['rental_id']);
+    rental.assignID(rental_id);
+    return rental;
+  }
 
-//     const row = this.toRow(car);
-//     return await this._db('cars')
-//       .update(row)
-//       .where({ car_id: car.getID() });
-//   }
-// }
+  async update(rental) {
+    if (!rental.getID()) throw new Error('rentals without ID cannot be saved');
 
-// module.exports = CarMapper;
+    const row = this.toRow(rental);
+    return await this._db('rentals')
+      .update(row)
+      .where({ rental_id: rental.getID() });
+  }
+}
+
+module.exports = RentalMapper;
