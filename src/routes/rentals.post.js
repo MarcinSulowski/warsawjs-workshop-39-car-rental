@@ -1,10 +1,11 @@
 'use strict';
 
 // const db = require('../db');
-const listPrice = require('../strategies/listPrice');
-const Money = require('../types/Money');
+// const listPrice = require('../strategies/listPrice');
+// const Money = require('../types/Money');
 const DateRange = require('../types/DateRange');
 const Cars = require('../modules/Cars');
+const CarMapper = require('../mappers/CarMapper');
 module.exports = function(app, { db }) {
   app.post(
     '/rentals',
@@ -42,7 +43,8 @@ module.exports = function(app, { db }) {
       const { car, price, days } = await db.transaction(async function(
         transaction
       ) {
-        const cars = new Cars({ db: transaction });
+        const mapper = new CarMapper({ db: transaction });
+        const cars = new Cars({ mapper });
 
         const { price, days, car } = await cars.getOffer(
           car_id,

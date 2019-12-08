@@ -1,4 +1,7 @@
 Pattern value object
 
 // dependency injection for testing - dependency inversion
+// baza jest prawdziwa zaleznoscia w tej apce
 SOLID
+// anemic domain model
+// data mapper - inne nazwy w bazie danych a w apce
