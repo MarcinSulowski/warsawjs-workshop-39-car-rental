@@ -1,1 +1,4 @@
 Pattern value object
+
+// dependency injection for testing - dependency inversion
+SOLID
